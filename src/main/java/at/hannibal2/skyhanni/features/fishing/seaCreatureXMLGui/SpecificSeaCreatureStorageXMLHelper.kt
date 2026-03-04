@@ -12,31 +12,31 @@ class SpecificSeaCreatureStorageXMLHelper(
     var name: String = from.name
 
     @field:Bind
-    var shouldRenderLootshare: Boolean? = from.shouldRenderLootshare
+    var shouldRenderLootshare: Boolean = from.shouldRenderLootshare
 
     @field:Bind
-    var shouldShowHealthOverlay: Boolean? = from.shouldShowHealthOverlay
+    var shouldShowHealthOverlay: Boolean = from.shouldShowHealthOverlay
 
     @field:Bind
-    var shouldShareInChat: Boolean? = from.shouldShareInChat
+    var shouldShareInChat: Boolean = from.shouldShareInChat
 
     @field:Bind
-    var shouldShowKillTime: Boolean? = from.shouldShowKillTime
+    var shouldShowKillTime: Boolean = from.shouldShowKillTime
 
     @field:Bind
-    var shouldSelfNotifyOnCatch: Boolean? = from.shouldSelfNotifyOnCatch
+    var shouldSelfNotifyOnCatch: Boolean = from.shouldSelfNotifyOnCatch
 
     @field:Bind
-    var shouldNotifyForNonOwn: Boolean? = from.shouldNotifyForNonOwn
+    var shouldNotifyForNonOwn: Boolean = from.shouldNotifyForNonOwn
 
     @field:Bind
-    var shouldHighlight: Boolean? = from.shouldHighlight
+    var shouldHighlight: Boolean = from.shouldHighlight
 
     @field:Bind
-    var shouldShareCocoonInChat: Boolean? = from.shouldShareCocoonInChat
+    var shouldShareCocoonInChat: Boolean = from.shouldShareCocoonInChat
 
     @field:Bind
-    var shouldWarnWhenCocooned: Boolean? = from.shouldWarnWhenCocooned
+    var shouldWarnWhenCocooned: Boolean = from.shouldWarnWhenCocooned
 
     @Bind
     fun getName(): StructuredText {

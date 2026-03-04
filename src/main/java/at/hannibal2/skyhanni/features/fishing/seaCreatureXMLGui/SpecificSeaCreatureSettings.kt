@@ -6,13 +6,13 @@ import com.google.gson.annotations.Expose
 @KSerializable
 data class SpecificSeaCreatureSettings(
     @Expose var name: String,
-    @Expose var shouldRenderLootshare: Boolean?,
-    @Expose var shouldShowHealthOverlay: Boolean?,
-    @Expose var shouldShareInChat: Boolean?,
-    @Expose var shouldShowKillTime: Boolean?,
-    @Expose var shouldSelfNotifyOnCatch: Boolean?,
-    @Expose var shouldNotifyForNonOwn: Boolean?,
-    @Expose var shouldHighlight: Boolean?,
-    @Expose var shouldShareCocoonInChat: Boolean?,
-    @Expose var shouldWarnWhenCocooned: Boolean?,
+    @Expose var shouldRenderLootshare: Boolean,
+    @Expose var shouldShowHealthOverlay: Boolean,
+    @Expose var shouldShareInChat: Boolean,
+    @Expose var shouldShowKillTime: Boolean,
+    @Expose var shouldSelfNotifyOnCatch: Boolean,
+    @Expose var shouldNotifyForNonOwn: Boolean,
+    @Expose var shouldHighlight: Boolean,
+    @Expose var shouldShareCocoonInChat: Boolean,
+    @Expose var shouldWarnWhenCocooned: Boolean,
 )
