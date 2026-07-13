@@ -210,7 +210,7 @@ object ItemDisplayOverlayFeatures {
         }
 
         if (SKILL_LEVEL.isSelected() &&
-            InventoryUtils.openInventoryName() == "Your Skills" &&
+            SkillApi.skillDetector.checkInventoryName(InventoryUtils.openInventoryName()) &&
             lore.any { it.contains("Click to view!") }
         ) {
             if (CollectionApi.isCollectionTier0(lore)) return "0"

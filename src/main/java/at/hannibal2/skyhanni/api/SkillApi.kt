@@ -27,8 +27,10 @@ import at.hannibal2.skyhanni.features.skillprogress.SkillUtil.getSkillInfo
 import at.hannibal2.skyhanni.features.skillprogress.SkillUtil.xpRequiredForLevel
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.utils.ChatUtils
+import at.hannibal2.skyhanni.utils.InventoryDetector
 import at.hannibal2.skyhanni.utils.InventoryUtils
 import at.hannibal2.skyhanni.utils.ItemUtils.cleanName
+import at.hannibal2.skyhanni.utils.ItemUtils.getCleanLore
 import at.hannibal2.skyhanni.utils.ItemUtils.getInternalName
 import at.hannibal2.skyhanni.utils.ItemUtils.getLore
 import at.hannibal2.skyhanni.utils.NeuInternalName.Companion.toInternalName
@@ -38,6 +40,7 @@ import at.hannibal2.skyhanni.utils.NumberUtil.formatLong
 import at.hannibal2.skyhanni.utils.NumberUtil.formatLongOrUserError
 import at.hannibal2.skyhanni.utils.NumberUtil.romanToDecimalIfNecessary
 import at.hannibal2.skyhanni.utils.RegexUtils.matchMatcher
+import at.hannibal2.skyhanni.utils.RegexUtils.matches
 import at.hannibal2.skyhanni.utils.SafeItemStack
 import at.hannibal2.skyhanni.utils.SimpleTimeMark
 import at.hannibal2.skyhanni.utils.StringUtils.removeColor
@@ -130,6 +133,27 @@ object SkillApi {
         " (?<type>\\w+)(?: (?<level>\\d+))?: (?<current>[0-9,.]+)/(?<needed>[\\d,.]+[kMB]?+)",
     )
 
+    private val skillMenuInventoryNamePattern by patternGroup.pattern(
+        "skillmenu",
+        "Your Skills",
+    )
+
+    val clickToViewInventoryPattern by patternGroup.pattern(
+        "clicktoview",
+        "Click to view!",
+    )
+
+    val skillNotUnlockedInventoryPattern by patternGroup.pattern(
+        "skillnotunlocked",
+        "Not unlocked!",
+    )
+
+    val maxSkillInventoryPattern by patternGroup.pattern(
+        "skillmaxlevel",
+        "Max Skill level reached!"
+    )
+
+    val skillDetector = InventoryDetector(checkInventoryName = { skillMenuInventoryNamePattern.matches(it) })
     var skillXPInfoMap = mutableMapOf<SkillType, SkillXPInfo>()
     var oldSkillInfoMap = mutableMapOf<SkillType?, SkillInfo?>()
     private val skillStorage get() = ProfileStorageData.profileSpecific?.skills
@@ -322,10 +346,10 @@ object SkillApi {
 
     @HandleEvent
     fun onInventoryFullyOpened(event: InventoryFullyOpenedEvent) {
-        if (event.inventoryName != "Your Skills") return
+        if (skillDetector.checkInventoryName(event.inventoryName)) return
         for (stack in event.inventoryItems.values) {
-            val lore = stack.getLore()
-            if (lore.none { it.contains("Click to view!") || it.contains("Not unlocked!") }) continue
+            val lore = stack.getCleanLore()
+            if (lore.none { clickToViewInventoryPattern.matches(it) || skillNotUnlockedInventoryPattern.matches(it) }) continue
             val cleanName = stack.cleanName()
             val split = cleanName.split(" ")
             val skillName = split.first()
@@ -334,11 +358,11 @@ object SkillApi {
             val skillInfo = storage?.getOrPut(skill, ::SkillInfo) ?: continue
 
             lore@ for ((index, line) in lore.withIndex()) {
-                val cleanLine = line.removeColor()
+                val cleanLine = line
                 if (!cleanLine.startsWith("                    ")) continue@lore
                 val previousLine = lore.getOrNull(index - 1) ?: continue@lore
                 val progress = cleanLine.substring(cleanLine.lastIndexOf(' ') + 1)
-                if (previousLine == "§7§8Max Skill level reached!") {
+                if (maxSkillInventoryPattern.matches(previousLine)) {
                     onUpdateMax(progress, skill, skillInfo, skillLevel)
                 } else {
                     onUpdateNotMax(progress, skillLevel, skillInfo)

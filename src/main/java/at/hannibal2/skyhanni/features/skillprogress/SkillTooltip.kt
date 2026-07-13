@@ -6,12 +6,14 @@ import at.hannibal2.skyhanni.events.minecraft.ToolTipTextEvent
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.utils.InventoryUtils
 import at.hannibal2.skyhanni.utils.ItemUtils.cleanName
-import at.hannibal2.skyhanni.utils.ItemUtils.getLoreComponent
+import at.hannibal2.skyhanni.utils.ItemUtils.getCleanLore
 import at.hannibal2.skyhanni.utils.NumberUtil.addSeparators
 import at.hannibal2.skyhanni.utils.NumberUtil.roundTo
 import at.hannibal2.skyhanni.utils.NumberUtil.toRoman
+import at.hannibal2.skyhanni.utils.RegexUtils.matches
 import at.hannibal2.skyhanni.utils.StringUtils
 import at.hannibal2.skyhanni.utils.StringUtils.isRoman
+import at.hannibal2.skyhanni.utils.StringUtils.removeColor
 import at.hannibal2.skyhanni.utils.chat.TextHelper.asComponent
 import at.hannibal2.skyhanni.utils.compat.setCustomItemName
 import net.minecraft.network.chat.Component
@@ -26,7 +28,7 @@ object SkillTooltip {
     fun onToolTip(event: ToolTipTextEvent) {
         val inventoryName = InventoryUtils.openInventoryName()
         val stack = event.itemStack
-        if (inventoryName == "Your Skills" && stack.getLoreComponent().any { it.string.contains("Click to view!") }) {
+        if (SkillApi.skillDetector.checkInventoryName(inventoryName) && stack.getCleanLore().any { SkillApi.clickToViewInventoryPattern.matches(it) }) {
             val iterator = event.toolTip.listIterator()
             val split = stack.cleanName().split(" ")
             val skillName = split.first()
@@ -36,8 +38,7 @@ object SkillTooltip {
             val showCustomGoal = skillInfo.customGoalLevel != 0 && customGoalConfig.enableInSkillMenuTooltip
             var next = false
             for (line in iterator) {
-                val maxReached = "Max Skill level reached!"
-                if (line.string.contains(maxReached) && overflowConfig.enableInSkillMenuTooltip) {
+                if (SkillApi.maxSkillInventoryPattern.matches(line.string.removeColor()) && overflowConfig.enableInSkillMenuTooltip) {
                     val progress = (skillInfo.overflowCurrentXp.toDouble() / skillInfo.overflowCurrentXpMax) * 100
                     val percent = "§e${progress.roundTo(1)}%"
                     val currentLevel = skillInfo.overflowLevel

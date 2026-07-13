@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.features.achievements
 
+import at.hannibal2.skyhanni.api.SkillApi
 import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.data.ProfileStorageData
 import at.hannibal2.skyhanni.data.achievements.Achievement
@@ -20,7 +21,6 @@ object SkillAchievements {
     private const val SKILL_ACHIEVEMENT = "Level 100 Skill"
     private const val ROCK_ACHIEVEMENT = "Mythic Rock"
     private const val DOLPHIN_ACHIEVEMENT = "Mythic Dolphin"
-    val skillDetector = InventoryDetector(checkInventoryName = { it == "Your Skills" })
     val petSkillDetector = InventoryDetector(pattern = "(Fishing|Mining) Skill".toPattern())
 
     /**
@@ -73,7 +73,7 @@ object SkillAchievements {
     fun onInventoryFullyOpened(event: InventoryFullyOpenedEvent) {
         val petSlot = 51
         val lore = event.inventoryItems[petSlot]?.getLoreComponent()
-        if (skillDetector.isInside()) {
+        if (SkillApi.skillDetector.isInside()) {
             DelayedRun.runNextTick {
                 val storage = ProfileStorageData.profileSpecific?.skills?.skillData ?: return@runNextTick
                 var highestSkill = 0
