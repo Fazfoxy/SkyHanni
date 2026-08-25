@@ -52,7 +52,7 @@ object AttributeShardsData {
 
     private var attributeLevelling = mapOf<LorenzRarity, List<Int>>()
     var unconsumableAttributes = listOf<String>()
-    private var attributeInfo = mapOf<String, NeuAttributeShardData>()
+    var attributeInfo = mapOf<String, NeuAttributeShardData>()
     private var internalNameToShard = mapOf<NeuInternalName, String>()
     private var attributeAbilityNameToShard = mapOf<String, String>()
     private val validItemSlots = 9..44
@@ -371,7 +371,10 @@ object AttributeShardsData {
         val attributesJson = event.getConstant<NeuAttributeShardJson>("attribute_shards")
         attributeLevelling = attributesJson.attributeLevelling
         unconsumableAttributes = attributesJson.unconsumableAttributes
-        attributeInfo = attributesJson.attributes.associateBy { it.bazaarName.asString() }
+
+        attributeInfo = attributesJson.attributes.associateBy {
+            ItemUtils.internalNameToApiName[it.internalName.asString()] ?: it.bazaarName.asString()
+        }
         maxShards = attributeInfo.size - unconsumableAttributes.size
         internalNameToShard = attributeInfo.map { (name, info) ->
             info.internalName to name

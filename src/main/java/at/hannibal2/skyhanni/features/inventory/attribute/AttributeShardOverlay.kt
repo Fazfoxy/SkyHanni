@@ -1,16 +1,23 @@
 package at.hannibal2.skyhanni.features.inventory.attribute
 
 import at.hannibal2.skyhanni.api.event.HandleEvent
+import at.hannibal2.skyhanni.config.commands.CommandCategory
+import at.hannibal2.skyhanni.config.commands.CommandRegistrationEvent
 import at.hannibal2.skyhanni.config.storage.ProfileSpecificStorage
 import at.hannibal2.skyhanni.data.ProfileStorageData
+import at.hannibal2.skyhanni.events.InventoryFullyOpenedEvent
 import at.hannibal2.skyhanni.events.InventoryUpdatedEvent
+import at.hannibal2.skyhanni.features.inventory.attribute.AttributeShardsData.attributeInfo
 import at.hannibal2.skyhanni.features.inventory.bazaar.BazaarApi
 import at.hannibal2.skyhanni.features.inventory.bazaar.BazaarApi.getOpenBuyOrderAmount
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
+import at.hannibal2.skyhanni.utils.ChatUtils
+import at.hannibal2.skyhanni.utils.ConditionalUtils.transformIf
 import at.hannibal2.skyhanni.utils.DelayedRun
 import at.hannibal2.skyhanni.utils.InventoryUtils
 import at.hannibal2.skyhanni.utils.ItemPriceSource
 import at.hannibal2.skyhanni.utils.ItemPriceUtils.getPrice
+import at.hannibal2.skyhanni.utils.ItemUtils.getInternalNameOrNull
 import at.hannibal2.skyhanni.utils.ItemUtils.repoItemName
 import at.hannibal2.skyhanni.utils.NeuInternalName
 import at.hannibal2.skyhanni.utils.NeuItems.getItemStack
@@ -19,6 +26,7 @@ import at.hannibal2.skyhanni.utils.NumberUtil.shortFormat
 import at.hannibal2.skyhanni.utils.RenderUtils.renderRenderables
 import at.hannibal2.skyhanni.utils.StringUtils
 import at.hannibal2.skyhanni.utils.StringUtils.removeColor
+import at.hannibal2.skyhanni.utils.collection.CollectionUtils.toSingletonListOrEmpty
 import at.hannibal2.skyhanni.utils.collection.RenderableCollectionUtils.addString
 import at.hannibal2.skyhanni.utils.renderables.Renderable
 import at.hannibal2.skyhanni.utils.renderables.RenderableUtils.addRenderableButton
@@ -28,6 +36,8 @@ import at.hannibal2.skyhanni.utils.renderables.buildSearchableScrollable
 import at.hannibal2.skyhanni.utils.renderables.container.HorizontalContainerRenderable.Companion.horizontal
 import at.hannibal2.skyhanni.utils.renderables.primitives.ItemStackRenderable.Companion.item
 import at.hannibal2.skyhanni.utils.renderables.toSearchable
+import net.minecraft.world.inventory.Slot
+import kotlin.time.Duration.Companion.seconds
 
 @SkyHanniModule
 object AttributeShardOverlay {
@@ -47,6 +57,7 @@ object AttributeShardOverlay {
     private var lastItemIdsInInventory: Set<NeuInternalName> = setOf()
     private var lastTotalShardsCollected = 0
     private var lastTotalInBazaarOrders = 0
+    private val itemIDsProcessed: MutableList<String> = mutableListOf()
 
     fun updateDisplay() {
         if (!config.enabled) return
@@ -94,7 +105,9 @@ object AttributeShardOverlay {
         val renderLine: Searchable,
     )
 
-    private fun reconstructDisplay() {
+    private fun reconstructDisplay(
+        attributesInInventory: Set<NeuInternalName>? = null,
+    ) {
         val shardsWithData = lastShardsData.size
         unlockedShards = 0
         maxedShards = 0
@@ -102,15 +115,25 @@ object AttributeShardOverlay {
         priceToMax = 0.0
 
         val lines = mutableListOf<AttributeShardDisplayLine>()
+        var shardHypixelIDs = 0
+        var shardNeuIDs = 0
 
-        lastItemIdsInInventory = InventoryUtils.getItemIdsInOpenChest()
+        if (attributesInInventory == null) lastItemIdsInInventory = InventoryUtils.getItemIdsInOpenChest()
+        else {
+            ChatUtils.debug(attributesInInventory.size.toString())
+            lastItemIdsInInventory = attributesInInventory
+        }
         val filteredShards = lastShardsData.filter { shardData ->
             !config.onlyCurrentInventory || AttributeShardsData.shardNameToInternalName(shardData.key) in lastItemIdsInInventory
         }
 
-        for ((shardName, shardData) in filteredShards) {
-            val shardInternalName = AttributeShardsData.shardNameToInternalName(shardName) ?: continue
 
+        for ((shardName, shardData) in filteredShards) {
+            itemIDsProcessed.add(shardName)
+            shardHypixelIDs++
+            val shardInternalName = AttributeShardsData.shardNameToInternalName(shardName) ?: continue
+            shardNeuIDs++
+            ChatUtils.debug("$shardHypixelIDs Hypixel IDs found, $shardNeuIDs NEU IDs found.")
             val amountSyphoned = shardData.amountSyphoned
             val (tier, toNextTier, toMax) = AttributeShardsData.findTierAndAmountUntilNext(shardName, amountSyphoned)
             if (tier == 10) {
@@ -363,14 +386,30 @@ object AttributeShardOverlay {
     }
 
     @HandleEvent(InventoryUpdatedEvent::class, onlyOnSkyblock = true)
-    private fun onInventoryUpdated() {
+    private fun onInventoryUpdated(event: InventoryFullyOpenedEvent) {
         if (!AttributeShardsData.attributeMenuInventory.isInside()) return
         if (!config.onlyCurrentInventory) return
 
-        DelayedRun.runNextTick {
-            val newItemIds = InventoryUtils.getItemIdsInOpenChest()
+            val newItemIds = event.inventoryItems.values
             if (lastItemIdsInInventory != newItemIds) {
-                reconstructDisplay()
+                val newIDs = newItemIds.mapNotNull { itemStack ->
+                    itemStack.getInternalNameOrNull()
+                }.toSet()
+                reconstructDisplay(newIDs)
+            }
+        }
+
+    @HandleEvent
+    private fun onCommandRegistration(event: CommandRegistrationEvent) {
+        event.registerBrigadier("skyhannidumpshards") {
+            description = "dumps debug information about shards"
+            category = CommandCategory.DEVELOPER_DEBUG
+            simpleCallback {
+                for (shardName in attributeInfo.keys)
+                    if (itemIDsProcessed.contains(shardName)) continue
+                    else {
+                        ChatUtils.debug("ShardID $shardName has not been processed!")
+                    }
             }
         }
     }

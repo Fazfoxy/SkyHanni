@@ -692,6 +692,8 @@ object ItemUtils {
     private var compactNameReplace = mapOf<String, String>()
     var bazaarOverrides = mapOf<String, String>()
         private set
+    var internalNameToApiName = mapOf<String, String>()
+        private set
 
     internal data class BazaarOverride(
         @Expose @SerializedName("stock") val bazaarInternalName: String,
@@ -711,6 +713,14 @@ object ItemUtils {
 
     @HandleEvent
     private fun onNeuRepoReload(event: NeuRepositoryReloadEvent) {
+        with(event.getConstant<List<BazaarOverride>>("bazaarstocks")) {
+            bazaarOverrides = associate {
+                it.bazaarInternalName to it.neuInternalName
+            }
+            internalNameToApiName = associate {
+                it.neuInternalName to it.bazaarInternalName
+            }
+        }
         bazaarOverrides = event.getConstant<List<BazaarOverride>>("bazaarstocks").associate {
             it.bazaarInternalName to it.neuInternalName
         }
