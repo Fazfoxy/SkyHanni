@@ -388,6 +388,13 @@ object AttributeShardOverlay {
     @HandleEvent(InventoryUpdatedEvent::class, onlyOnSkyblock = true)
     private fun onInventoryUpdated(event: InventoryFullyOpenedEvent) {
         if (!AttributeShardsData.attributeMenuInventory.isInside()) return
+        val tempStorage = storage
+        if (tempStorage?.size != attributeInfo.size && tempStorage != null) {
+            tempStorage.forEach {
+                if (!attributeInfo.contains(it.key)) tempStorage.remove(it.key)
+            }
+            ProfileStorageData.profileSpecific?.attributeShards = tempStorage
+        }
         if (!config.onlyCurrentInventory) return
 
             val newItemIds = event.inventoryItems.values
