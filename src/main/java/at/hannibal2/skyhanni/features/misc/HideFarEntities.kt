@@ -37,7 +37,7 @@ object HideFarEntities {
     // TODO: use entity events
     @OptIn(AllEntitiesGetter::class)
     @HandleEvent
-    fun onTick(event: SkyHanniTickEvent) {
+    private fun onTick(event: SkyHanniTickEvent) {
         if (GlobalRender.renderDisabled) return
         if (!isEnabled()) return
         if (event.isMod(20)) {
@@ -106,9 +106,10 @@ object HideFarEntities {
     }
 
     @HandleEvent(onlyOnSkyblock = true)
-    fun onCheckRender(event: CheckRenderEntityEvent<Entity>) {
+    private fun onCheckRender(event: CheckRenderEntityEvent<Entity>) {
         if (!isEnabled()) return
         val entity = event.entity
+        if (entity.id in neverHide) return
         if (entity.id in ignored) {
             event.cancel()
         }
