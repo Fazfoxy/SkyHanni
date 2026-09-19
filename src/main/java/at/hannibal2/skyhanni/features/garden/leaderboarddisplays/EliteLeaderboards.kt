@@ -58,7 +58,7 @@ enum class EliteLeaderboards(
         }
 
         @HandleEvent
-        fun onGuiRenderTop() {
+        private fun onGuiRenderTop() {
             synchronized(displayPositionsLock) {
                 if (config.displayPositions.isEmpty()) return
                 if (!config.enabled.get()) return
@@ -85,7 +85,7 @@ enum class EliteLeaderboards(
         }
 
         @HandleEvent
-        fun onConfigLoad() {
+        private fun onConfigLoad() {
             val weightConfigs = listOf(
                 weightConfig.rankGoals.useRankGoal,
                 weightConfig.rankGoals.monthlyRankGoal,
@@ -143,7 +143,7 @@ enum class EliteLeaderboards(
         }
 
         @HandleEvent
-        fun onProfileJoin(event: ProfileJoinEvent) {
+        private fun onProfileJoin() {
             synchronized(displayPositionsLock) {
                 with(config.displayPositions) {
                     val newPositionList = updateConfigPositionList(
@@ -158,7 +158,7 @@ enum class EliteLeaderboards(
         }
 
         @HandleEvent
-        fun onConfigFix(event: ConfigUpdaterMigrator.ConfigFixEvent) {
+        private fun onConfigFix(event: ConfigUpdaterMigrator.ConfigFixEvent) {
             event.transform(1, "garden.eliteFarmingWeightoffScreenDropMessage")
             event.move(3, "garden.eliteFarmingWeightDisplay", "garden.eliteFarmingWeights.display")
             event.move(3, "garden.eliteFarmingWeightPos", "garden.eliteFarmingWeights.pos")

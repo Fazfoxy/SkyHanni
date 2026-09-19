@@ -20,7 +20,7 @@ object StatOverlay {
     private val displayPositionsLock = Any()
 
     @HandleEvent(onlyOnSkyblock = true)
-    fun onGuiRenderOverlay() {
+    private fun onGuiRenderOverlay() {
         if (config.displayStats.isEmpty()) return
         config.displayStats.forEach { statToDisplay ->
             if (!statToDisplay.extraCondition()) return@forEach
@@ -55,7 +55,7 @@ object StatOverlay {
     }
 
     @HandleEvent
-    fun onProfileJoin() {
+    private fun onProfileJoin() {
         synchronized(displayPositionsLock) {
             with(config.displayPositions) {
                 val updatedList = updateConfigPositionList(
@@ -70,7 +70,7 @@ object StatOverlay {
     }
 
     @HandleEvent
-    fun onConfigFix(event: ConfigUpdaterMigrator.ConfigFixEvent) {
+    private fun onConfigFix(event: ConfigUpdaterMigrator.ConfigFixEvent) {
         val shortenedStats: MutableList<SkyblockStatUI> = mutableListOf()
         val displayStats = buildList {
             if (event.oldBoolean("combat.ferocityDisplay.enabled")) add(SkyblockStatUI.FEROCITY)
