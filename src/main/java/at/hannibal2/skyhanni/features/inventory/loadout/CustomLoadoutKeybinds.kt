@@ -52,7 +52,7 @@ object CustomLoadoutKeybinds {
         return false
     }
 
-    fun allowInput() = isEnabled() && keybinds.filter { it != GLFW.GLFW_KEY_UNKNOWN }.any { it.isKeyHeld() }
+    fun allowInput(): Boolean = isEnabled() && keybinds.any { it.isKeyHeld() }
 
     private fun isEnabled() = SkyBlockUtils.inSkyBlock && LoadoutApi.inLoadouts() && config.slotKeybindsToggle
 }
