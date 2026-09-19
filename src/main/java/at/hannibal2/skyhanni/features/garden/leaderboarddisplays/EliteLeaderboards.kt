@@ -35,7 +35,7 @@ enum class EliteLeaderboards(
     PEST("Pest Kills", PestDisplay(), EliteLeaderboardType.Pest::class)
     ;
 
-    val isEnabled get() = config.enabled && this in config.display.get()
+    val isEnabled get() = config.enabled.get() && this in config.display.get()
     val position get() = config.displayPositions[ordinal]
     override fun toString() = displayName
 
@@ -61,7 +61,7 @@ enum class EliteLeaderboards(
         fun onGuiRenderTop() {
             synchronized(displayPositionsLock) {
                 if (config.displayPositions.isEmpty()) return
-                if (!config.enabled) return
+                if (!config.enabled.get()) return
                 if (InventoryUtils.inAnyInventory()) {
                     InventoryGuiScaleCompat.withOriginalHudScale {
                         renderDisplays()

@@ -4,6 +4,8 @@ import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.Accordion
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
 import io.github.notenoughupdates.moulconfig.annotations.ConfigOption
+import io.github.notenoughupdates.moulconfig.annotations.SearchTag
+import io.github.notenoughupdates.moulconfig.observer.Property
 
 class PestsConfig {
     @Expose
@@ -60,9 +62,11 @@ class PestsConfig {
     @Expose
     @ConfigOption(
         name = "Mute Vacuum",
-        desc = "Mute the pest vacuum when using its right click ability.",
+        desc = "Mute the pest vacuum when using its right click ability. " +
+            "This works on any island with pests, not just the Garden.",
     )
     @ConfigEditorBoolean
+    @SearchTag("torrhus canyon")
     var muteVacuum: Boolean = false
 }
 
