@@ -6,7 +6,6 @@ import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.utils.KeyboardManager.isKeyHeld
 import at.hannibal2.skyhanni.utils.SimpleTimeMark
 import at.hannibal2.skyhanni.utils.SkyBlockUtils
-import org.lwjgl.glfw.GLFW
 import kotlin.time.Duration.Companion.milliseconds
 
 @SkyHanniModule
