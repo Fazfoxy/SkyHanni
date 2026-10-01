@@ -330,7 +330,7 @@ object InstanceChestProfit {
         items.forEach {
             if (fakeItemNamePattern.matches(it.value.hoverName.formattedTextCompatLeadingWhiteLessResets())) return@forEach
             if (it.value.getInternalNameOrNull() != null) {
-                val cost = EstimatedItemValueCalculator.getTotalPrice(it.value)
+                val cost = EstimatedItemValueCalculator.getTotalPrice(it.value, priceSource = config.priceSource)
                 if (cost != null) itemsWithCost.addOrPut(it.value.getInternalName().repoItemName, (cost * it.value.count))
             }
             val name = it.value.hoverName.formattedTextCompatLeadingWhiteLessResets()

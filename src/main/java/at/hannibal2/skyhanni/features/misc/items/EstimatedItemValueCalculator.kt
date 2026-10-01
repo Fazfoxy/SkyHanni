@@ -12,6 +12,7 @@ import at.hannibal2.skyhanni.test.command.ErrorManager
 import at.hannibal2.skyhanni.utils.EssenceUtils
 import at.hannibal2.skyhanni.utils.EssenceUtils.getEssencePrices
 import at.hannibal2.skyhanni.utils.InventoryUtils
+import at.hannibal2.skyhanni.utils.ItemPriceSource
 import at.hannibal2.skyhanni.utils.ItemPriceUtils.formatCoin
 import at.hannibal2.skyhanni.utils.ItemPriceUtils.formatCoinWithBrackets
 import at.hannibal2.skyhanni.utils.ItemPriceUtils.getNpcPriceOrNull
@@ -168,16 +169,16 @@ object EstimatedItemValueCalculator {
     private val FREE_WILL = "FREE_WILL".toInternalName()
 
     // TODO Extend this to actually take a price source instead of having price source be decided by Estimated Item Value config
-    fun getTotalPrice(stack: SafeItemStack, ignoreBasePrice: Boolean = false): Double? {
-        val (totalPrice, basePrice) = calculate(stack, mutableListOf())
+    fun getTotalPrice(stack: SafeItemStack, ignoreBasePrice: Boolean = false, priceSource: ItemPriceSource? = null): Double? {
+        val (totalPrice, basePrice) = calculate(stack, mutableListOf(), priceSource)
         if (ignoreBasePrice && totalPrice == basePrice) {
             return null
         }
         return totalPrice
     }
 
-    fun calculate(stack: SafeItemStack, list: MutableList<String>): Pair<Double, Double> {
-        val basePrice = addBaseItem(stack, list)
+    fun calculate(stack: SafeItemStack, list: MutableList<String>, priceSource: ItemPriceSource? = null): Pair<Double, Double> {
+        val basePrice = addBaseItem(stack, list, priceSource)
         // The value of enchantments will already be added in ::addEnchantments, so set to 0 to avoid double counting
         val foldValue = if (stack.getItemId() == "ENCHANTED_BOOK") 0.0
         else basePrice
@@ -863,14 +864,14 @@ object EstimatedItemValueCalculator {
         return price
     }
 
-    private fun addBaseItem(stack: SafeItemStack, list: MutableList<String>): Double {
+    private fun addBaseItem(stack: SafeItemStack, list: MutableList<String>, priceSource: ItemPriceSource? = null): Double {
         val internalName = stack.getInternalName().removeKuudraTier()
         val petLevelInclusiveInternalName = stack.getPetInternalNameWithLevel().removeKuudraTier()
 
         // ignore cases where players put bugged items in ah/trade/chest to break mods
         if (internalName == NeuInternalName.NONE) return 0.0
 
-        var price = petLevelInclusiveInternalName.getPrice()
+        var price = petLevelInclusiveInternalName.getPrice(priceSource)
         if (price == -1.0) {
             price = 0.0
         }
@@ -941,6 +942,6 @@ object EstimatedItemValueCalculator {
         return boosters
     }
 
-    private fun NeuInternalName.getPrice(): Double = getPriceOrNull() ?: 0.0
-    private fun NeuInternalName.getPriceOrNull(): Double? = getPriceOrNull(config.priceSource.get())
+    private fun NeuInternalName.getPrice(priceSource: ItemPriceSource? = null): Double = getPriceOrNull(priceSource) ?: 0.0
+    private fun NeuInternalName.getPriceOrNull(priceSource: ItemPriceSource? = null): Double? = getPriceOrNull(priceSource ?: config.priceSource.get())
 }
