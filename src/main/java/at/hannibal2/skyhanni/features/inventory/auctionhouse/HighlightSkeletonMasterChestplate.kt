@@ -11,8 +11,8 @@ import at.hannibal2.skyhanni.utils.NeuInternalName
 import at.hannibal2.skyhanni.utils.NeuInternalName.Companion.toInternalName
 import at.hannibal2.skyhanni.utils.RenderUtils.highlight
 import at.hannibal2.skyhanni.utils.SafeItemStack
+import at.hannibal2.skyhanni.utils.SkyBlockItemModifierUtils.getDungeonItemQuality
 import at.hannibal2.skyhanni.utils.SkyBlockItemModifierUtils.getDungeonTier
-import at.hannibal2.skyhanni.utils.SkyBlockItemModifierUtils.getStatBoostPercentage
 
 @SkyHanniModule
 object HighlightSkeletonMasterChestplate {
@@ -33,7 +33,7 @@ object HighlightSkeletonMasterChestplate {
     }
 
     private fun isGoodChestplate(item: SafeItemStack): Boolean =
-        (item.getDungeonTier() == 10 && item.getStatBoostPercentage() == 50)
+        (item.getDungeonTier() == 10 && item.getDungeonItemQuality() == 50)
 
     fun isEnabled(): Boolean = (config.highlightBadChestplate || config.highlightGoodChestplate)
 
