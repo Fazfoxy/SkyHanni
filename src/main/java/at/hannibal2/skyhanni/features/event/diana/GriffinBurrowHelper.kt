@@ -554,7 +554,6 @@ object GriffinBurrowHelper {
                     lineStart = subGuess
                 }
             }
-
             event.drawColorOrOutline(
                 location,
                 burrowType.getBurrowColour(),

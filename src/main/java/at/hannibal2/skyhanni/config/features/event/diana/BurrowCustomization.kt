@@ -5,6 +5,7 @@ import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.ChromaColour
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorColour
+import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorDropdown
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorSlider
 import io.github.notenoughupdates.moulconfig.annotations.ConfigOption
 
@@ -37,10 +38,18 @@ class BurrowCustomization {
     @Expose
     @ConfigOption(
         name = "Waypoints Filled",
-        desc = "Whether to render Burrow Waypoints as a Full block (enabled) or Outline (Disabled)"
+        desc = "How Griffin burrows should be rendered."
     )
-    @ConfigEditorBoolean
-    var shouldRenderAsFullBlock: Boolean = true
+    @ConfigEditorDropdown
+    var shouldRenderAsFullBlock: BlockRenderType = BlockRenderType.FULL
+
+    enum class BlockRenderType(val displayName: String) {
+        FULL("Full Block"),
+        OUTLINE("Block Outline"),
+        ;
+
+        override fun toString(): String = this.displayName
+    }
 
     @Expose
     @ConfigOption(

@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.utils.render
 
+import at.hannibal2.skyhanni.config.features.event.diana.BurrowCustomization
 import at.hannibal2.skyhanni.data.mob.Mob
 import at.hannibal2.skyhanni.data.model.graph.Graph
 import at.hannibal2.skyhanni.events.minecraft.SkyHanniRenderWorldEvent
@@ -990,10 +991,12 @@ object WorldRenderUtils {
         width: Int = 1,
         alpha: Float = -1f,
         seeThroughBlocks: Boolean = true,
-        filled: Boolean = false,
+        filled: BurrowCustomization.BlockRenderType = BurrowCustomization.BlockRenderType.OUTLINE,
     ) {
-        if (filled) drawColor(location, color, false, alpha, seeThroughBlocks)
-        else drawEdges(location, color.toColor(), width, depth = !seeThroughBlocks)
+        when (filled) {
+            BurrowCustomization.BlockRenderType.FULL -> drawColor(location, color, false, alpha, seeThroughBlocks)
+            BurrowCustomization.BlockRenderType.OUTLINE -> drawEdges(location, color.toColor(), width, depth = !seeThroughBlocks)
+        }
         if (beacon) renderBeaconBeam(location, color.toColor())
     }
 
