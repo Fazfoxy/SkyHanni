@@ -35,7 +35,7 @@ enum class ItemAbility(
     GYROKINETIC_WAND_LEFT(30, "GYROKINETIC_WAND", alternativePosition = true),
     GYROKINETIC_WAND_RIGHT(10, "GYROKINETIC_WAND"),
     GIANTS_SWORD(30),
-    ICE_SPRAY_WAND(5),
+    ICE_SPRAY_WAND(5, "STARRED_ICE_SPRAY_WAND"),
     RAGNAROCK_AXE(20),
     WAND_OF_ATONEMENT(7, "WAND_OF_HEALING", "WAND_OF_MENDING", "WAND_OF_RESTORATION"),
     SOS_FLARE(10),
@@ -74,7 +74,8 @@ enum class ItemAbility(
     ATOMSPLIT_KATANA("Soulcry", 4, "Atomsplit Katana", "Vorpal Katana", "Voidedge Katana", ignoreMageCooldownReduction = true),
 
     // doesn't have a consistent sound
-    ECHO("Echo", 3, "Ancestral Spade");
+    ECHO("Echo", 3, "Ancestral Spade"),
+    ;
 
     var newVariant = false
     var internalNames = mutableListOf<NeuInternalName>()

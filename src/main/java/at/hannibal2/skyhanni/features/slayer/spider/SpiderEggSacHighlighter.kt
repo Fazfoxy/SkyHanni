@@ -2,7 +2,7 @@ package at.hannibal2.skyhanni.features.slayer.spider
 
 import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.data.SlayerApi
-import at.hannibal2.skyhanni.events.entity.EntityRemovedEvent
+import at.hannibal2.skyhanni.events.entity.EntityLeaveWorldEvent
 import at.hannibal2.skyhanni.events.minecraft.SkyHanniTickEvent
 import at.hannibal2.skyhanni.events.minecraft.WorldChangeEvent
 import at.hannibal2.skyhanni.features.slayer.SlayerType
@@ -42,10 +42,10 @@ object SpiderEggSacHighlighter {
 
         val armorStands = getEntitiesNearby<ArmorStand>(20.0)
         val shootMeStands = armorStands.filter {
-            it.cleanName().equals("SHOOT ME!", ignoreCase = true)
+            it.cleanName.equals("SHOOT ME!", ignoreCase = true)
         }
         val timerStands = armorStands.filter {
-            eggSacTimerPattern.matches(it.cleanName())
+            eggSacTimerPattern.matches(it.cleanName)
         }
 
         val currentEggSacs = timerStands
@@ -67,7 +67,7 @@ object SpiderEggSacHighlighter {
     private fun ArmorStand.getEggSacParts(armorStands: List<ArmorStand>): List<ArmorStand> {
         val location = getLorenzVec()
         return listOf(this) + armorStands.filter {
-            it.cleanName() == "Armor Stand" && it.getLorenzVec().distance(location) < 1.2
+            it.cleanName == "Armor Stand" && it.getLorenzVec().distance(location) < 1.2
         }
     }
 
@@ -81,7 +81,7 @@ object SpiderEggSacHighlighter {
     }
 
     @HandleEvent
-    fun onEntityRemoved(event: EntityRemovedEvent<ArmorStand>) {
+    private fun onEntityLeaveWorld(event: EntityLeaveWorldEvent<ArmorStand>) {
         if (highlightedEggSacs.remove(event.entity)) {
             RenderLivingEntityHelper.removeEntityColor(event.entity)
         }

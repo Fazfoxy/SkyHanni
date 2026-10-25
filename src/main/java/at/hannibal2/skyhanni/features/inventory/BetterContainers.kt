@@ -19,6 +19,7 @@ import at.hannibal2.skyhanni.utils.compat.ColoredBlockCompat
 import at.hannibal2.skyhanni.utils.compat.ColoredBlockCompat.Companion.isStainedGlassPane
 import at.hannibal2.skyhanni.utils.compat.DyeCompat.Companion.isDye
 import at.hannibal2.skyhanni.utils.compat.InventoryCompat.isNotEmpty
+import at.hannibal2.skyhanni.utils.compat.MinecraftCompat
 import at.hannibal2.skyhanni.utils.compat.container
 import at.hannibal2.skyhanni.utils.compat.getTooltip
 import at.hannibal2.skyhanni.utils.repopatterns.RepoPattern
@@ -66,7 +67,7 @@ object BetterContainers {
         "disallowed",
         "(?i)navigate the maze.*",
     )
-    val disallowedInventory = InventoryDetector(disallowedInventoryPattern)
+    val disallowedInventory = InventoryDetector { disallowedInventoryPattern }
 
     val isRendering: Boolean get() = loaded && gpuTex != null
     val isOverriding: Boolean get() = chestOpen && isRendering && !disallowedInventory.isInside()
@@ -97,8 +98,8 @@ object BetterContainers {
     }
 
     @JvmStatic
-    fun slotCanBeHighlighted(slot: Slot): Boolean {
-        return if (!isOverriding) slot.isHighlightable
+    fun slotCanBeHighlighted(slot: Slot, original: Boolean): Boolean {
+        return if (!isOverriding) original
         else !isBlankStack(slot.item)
     }
 
@@ -180,7 +181,7 @@ object BetterContainers {
     }
 
     private fun getBaseTextColor(
-        backgroundStyle: LegacyBetterContainers.BackgroundStyle
+        backgroundStyle: LegacyBetterContainers.BackgroundStyle,
     ) = readJsonResource(backgroundStyle.configId)?.use { reader ->
         val newJson = ConfigManager.gson.fromJson(reader, JsonObject::class.java)
         @Suppress("AvoidBritishSpelling")
@@ -236,7 +237,7 @@ object BetterContainers {
 
     fun getTextureIdentifier(original: Identifier): Identifier {
         if (!chestOpen) return original
-        val inv = (Minecraft.getInstance().screen as? ContainerScreen)?.container
+        val inv = (MinecraftCompat.screen as? ContainerScreen)?.container
             ?: return original
         if (inv !is ChestMenu) return original
         val invHash = inv.hashCode()
@@ -278,7 +279,7 @@ object BetterContainers {
         handlerInventory: Container,
         horizontalTexMult: Int,
         verticalTexMult: Int,
-        bufferedImageNew: BufferedImage
+        bufferedImageNew: BufferedImage,
     ) {
         val size = handlerInventory.containerSize
         val isSlot = Array(9) { BooleanArray(size / 9) }

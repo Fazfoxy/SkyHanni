@@ -69,8 +69,8 @@ object QuiverApi {
     var NONE_ARROW_TYPE: ArrowType? = null
     private var FLINT_ARROW_TYPE: ArrowType? = null
 
-    private val group = RepoPattern.group("data.quiver")
-    private val chatGroup = group.group("chat")
+    private val patternGroup = RepoPattern.group("data.quiver")
+    private val chatGroup = patternGroup.group("chat")
 
     /**
      * REGEX-TEST: §aYou set your selected arrow type to §r§fFlint Arrow§r§a!
@@ -121,13 +121,13 @@ object QuiverApi {
      * REGEX-TEST: BOSS_SPIRIT_BOW
      * REGEX-TEST: CRYPT_BOW
      */
-    private val fakeBowsPattern by group.pattern("fakebows", "BOSS_SPIRIT_BOW|CRYPT_BOW")
-    private val quiverInventoryNamePattern by group.pattern("quivername", "Quiver")
+    private val fakeBowsPattern by patternGroup.pattern("fakebows", "BOSS_SPIRIT_BOW|CRYPT_BOW")
+    private val quiverInventoryNamePattern by patternGroup.pattern("quivername", "Quiver")
 
     /**
      * REGEX-TEST: Active Arrow: Flint Arrow (2880)
      */
-    private val quiverInventoryPattern by group.pattern(
+    private val quiverInventoryPattern by patternGroup.pattern(
         "quiver.inventory",
         "Active Arrow: (?<type>.*) \\((?<amount>[\\d,]+)\\)",
     )
@@ -135,7 +135,7 @@ object QuiverApi {
     /**
      * REGEX-TEST: Arrows Remaining: 1,327
      */
-    private val quiverPreviewAmountPattern by group.pattern(
+    private val quiverPreviewAmountPattern by patternGroup.pattern(
         "quiver.preview.amount",
         "Arrows Remaining: (?<amount>[\\d,]+)",
     )
@@ -251,9 +251,8 @@ object QuiverApi {
         val achievement = Achievement(
             "Arrowslinger".asComponent(),
             "Shoot 100,000 Arrows".asComponent(),
-            50f,
-            false,
-            listOf(100_000)
+            userLuckAmount = 50f,
+            tiers = listOf(100_000),
         )
         event.register(achievement, ARROW_ACHIEVEMENT)
     }
@@ -282,7 +281,7 @@ object QuiverApi {
         if (!isQuiverPreview) return
 
         val currentArrowType = stack.getQuiverPreviewArrowTypeOrNull() ?: run {
-            val type = stack.cleanName()
+            val type = stack.cleanName
             logUnknownArrowType(type, "item name" to type, "lore" to lore)
             return
         }
@@ -299,7 +298,7 @@ object QuiverApi {
     }
 
     private fun SafeItemStack.getQuiverPreviewArrowTypeOrNull(): ArrowType? {
-        getArrowByNameOrNull(cleanName().trimWhiteSpace())?.let { return it }
+        getArrowByNameOrNull(cleanName.trimWhiteSpace())?.let { return it }
         return getLoreComponent().firstNotNullOfOrNull { line ->
             getArrowByNameOrNull(line.string.trimWhiteSpace())
         }
