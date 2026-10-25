@@ -991,13 +991,21 @@ object WorldRenderUtils {
         width: Int = 1,
         alpha: Float = -1f,
         seeThroughBlocks: Boolean = true,
-        filled: BurrowCustomization.BlockRenderType = BurrowCustomization.BlockRenderType.OUTLINE,
+        filled: BlockRenderType = BlockRenderType.OUTLINE,
     ) {
         when (filled) {
-            BurrowCustomization.BlockRenderType.FULL -> drawColor(location, color, false, alpha, seeThroughBlocks)
-            BurrowCustomization.BlockRenderType.OUTLINE -> drawEdges(location, color.toColor(), width, depth = !seeThroughBlocks)
+            BlockRenderType.FULL -> drawColor(location, color, false, alpha, seeThroughBlocks)
+            BlockRenderType.OUTLINE -> drawEdges(location, color.toColor(), width, depth = !seeThroughBlocks)
         }
         if (beacon) renderBeaconBeam(location, color.toColor())
+    }
+
+    enum class BlockRenderType(val displayName: String) {
+        FULL("Full Block"),
+        OUTLINE("Block Outline"),
+        ;
+
+        override fun toString(): String = this.displayName
     }
 
     fun SkyHanniRenderWorldEvent.exactPlayerEyeLocation(player: Entity): LorenzVec =

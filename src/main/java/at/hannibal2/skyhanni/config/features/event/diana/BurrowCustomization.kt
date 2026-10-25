@@ -1,6 +1,7 @@
 package at.hannibal2.skyhanni.config.features.event.diana
 
 import at.hannibal2.skyhanni.utils.LorenzColor
+import at.hannibal2.skyhanni.utils.render.WorldRenderUtils
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.ChromaColour
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorColour
@@ -40,15 +41,7 @@ class BurrowCustomization {
         desc = "How Griffin burrows should be rendered."
     )
     @ConfigEditorDropdown
-    var shouldRenderAsFullBlock: BlockRenderType = BlockRenderType.FULL
-
-    enum class BlockRenderType(val displayName: String) {
-        FULL("Full Block"),
-        OUTLINE("Block Outline"),
-        ;
-
-        override fun toString(): String = this.displayName
-    }
+    var shouldRenderAsFullBlock: WorldRenderUtils.BlockRenderType = WorldRenderUtils.BlockRenderType.FULL
 
     @Expose
     @ConfigOption(
