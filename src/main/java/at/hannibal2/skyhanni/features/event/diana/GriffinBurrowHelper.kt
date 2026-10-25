@@ -462,7 +462,7 @@ object GriffinBurrowHelper {
 
             val targetType = getGuess(targetLocation)?.burrowType
             val lineWidth = if (targetType != null && targetType != BurrowType.UNKNOWN) {
-                color = targetType.color
+                color = targetType.color()
                 3
             } else 2
             if (currentWarp == null) {
@@ -487,7 +487,7 @@ object GriffinBurrowHelper {
 
             event.drawColor(
                 location,
-                target.burrowType.color,
+                target.burrowType.color(),
                 config.beaconDistance != -1.0F && distance > config.beaconDistance,
             )
             event.drawDynamicText(location.up(), text, 1.5 * config.textScale)
@@ -554,7 +554,7 @@ object GriffinBurrowHelper {
             }
             event.drawColorOrOutline(
                 location,
-                burrowType.color,
+                burrowType.color(),
                 config.beaconDistance != -1.0F && distance > config.beaconDistance,
                 config.burrowCustomization.burrowOutlineWidth.toInt(),
                 filled = config.burrowCustomization.shouldRenderAsFullBlock,
