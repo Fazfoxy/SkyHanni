@@ -1,6 +1,5 @@
 package at.hannibal2.skyhanni.utils.render
 
-import at.hannibal2.skyhanni.config.features.event.diana.BurrowCustomization
 import at.hannibal2.skyhanni.data.mob.Mob
 import at.hannibal2.skyhanni.data.model.graph.Graph
 import at.hannibal2.skyhanni.events.minecraft.SkyHanniRenderWorldEvent
