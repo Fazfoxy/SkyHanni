@@ -16,12 +16,13 @@ import at.hannibal2.skyhanni.utils.ColorUtils.addAlpha
 import at.hannibal2.skyhanni.utils.EntityUtils
 import at.hannibal2.skyhanni.utils.ItemUtils.getInternalName
 import at.hannibal2.skyhanni.utils.LorenzColor
-import at.hannibal2.skyhanni.utils.SkyHanniLogger
 import at.hannibal2.skyhanni.utils.NeuInternalName
 import at.hannibal2.skyhanni.utils.NumberUtil.isInt
 import at.hannibal2.skyhanni.utils.RegexUtils.matchMatcher
 import at.hannibal2.skyhanni.utils.SafeItemStack
 import at.hannibal2.skyhanni.utils.SkyBlockUtils
+import at.hannibal2.skyhanni.utils.SkyHanniLogger
+import at.hannibal2.skyhanni.utils.StringUtils.removeColor
 import at.hannibal2.skyhanni.utils.collection.CollectionUtils.editCopy
 import at.hannibal2.skyhanni.utils.compat.formattedTextCompat
 import at.hannibal2.skyhanni.utils.json.addElementsAfter
@@ -154,6 +155,14 @@ object VisitorApi {
         var blockedLore = listOf<Component>()
         var blockReason: VisitorBlockReason? = null
 
+        var ignoreShoppingList: Boolean
+            get() = GardenApi.storage?.ignoredVisitors?.contains(visitorName.removeColor()) == true
+            set(value) {
+                val storage = GardenApi.storage ?: return
+                val key = visitorName.removeColor()
+                if (value) storage.ignoredVisitors.add(key) else storage.ignoredVisitors.remove(key)
+            }
+
         fun getEntity() = EntityUtils.getEntityByID(entityId)
         fun getNameTagEntity() = EntityUtils.getEntityByID(nameTagEntityId)
 
@@ -231,7 +240,7 @@ object VisitorApi {
         CHEAP_COPPER("§aCheap copper", true),
         EXPENSIVE_COPPER("§cExpensive copper", false),
         LOW_LOSS("§aLow Loss", true),
-        HIGH_LOSS("§cHigh Loss", false)
+        HIGH_LOSS("§cHigh Loss", false),
     }
 
     @HandleEvent
@@ -321,6 +330,14 @@ object VisitorApi {
                     VisitorReward.JELLY_GREENHOUSE_SKIN,
                 )
             )
+        }
+        event.transform(137, "garden.visitors.shoppingList.ignoreSpaceman") { entry ->
+            if (entry.asBoolean) {
+                event.add(137, "#profile.garden.ignoredVisitors") {
+                    JsonArray().apply { add("Spaceman") }
+                }
+            }
+            entry
         }
 
         event.move(18, "garden.visitors.needs", "garden.visitors.shoppingList")

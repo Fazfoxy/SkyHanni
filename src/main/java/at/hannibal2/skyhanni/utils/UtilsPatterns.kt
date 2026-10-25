@@ -11,6 +11,7 @@ object UtilsPatterns {
 
     // COMMON|UNCOMMON|RARE|EPIC|LEGENDARY|MYTHIC|DIVINE|SPECIAL|VERY SPECIAL|ULTIMATE
     private val rarities = enumJoinToPattern<LorenzRarity> { it.name.replace("_", " ") }
+
     /**
      * REGEX-TEST: a MYTHIC ACCESSORY a
      * REGEX-TEST: a SHINY MYTHIC DUNGEON CHESTPLATE a
@@ -20,15 +21,18 @@ object UtilsPatterns {
      * REGEX-TEST: EPIC BOOTS
      * REGEX-TEST: COMMON
      * REGEX-TEST: COMMON COMBAT SHARD (ID C9)
+     * REGEX-TEST: EPIC WATER SHARD (ID E5)
      * REGEX-TEST: Rarity: LEGENDARY
      * REGEX-TEST: Rarity: RARE
      * REGEX-TEST: a DIVINE a
      * REGEX-TEST: LEGENDARY DUNGEON ITEM
      * REGEX-TEST: a MYTHIC DUNGEON ITEM a
+     * REGEX-TEST: LEGENDARY SLAYER SWORD
      */
+    @Suppress("MaxLineLength")
     val rarityLoreLinePattern by patternGroup.pattern(
         "item.lore.rarity.line.colorless",
-        "^(?:Rarity: )?(?:a )?(?:SHINY )?(?<rarity>$rarities)(?: DUNGEON)? ?(?<itemCategory>[A-Z].*?|)(?: a)?(?: \\(ID \\w\\d+\\))?$",
+        "^(?:Rarity: )?(?:a )?(?:SHINY )?(?<rarity>$rarities)(?: (?:DUNGEON|SLAYER))? ?(?<itemCategory>[A-Z].*?|)(?: a)?(?: \\(ID \\w\\d+\\))?$",
     )
 
     /**
@@ -97,14 +101,6 @@ object UtilsPatterns {
     val readAmountAfterPattern by patternGroup.pattern(
         "item.amount.behind",
         "(?<name>(?:§.)*(?:[^§] ?)+)(?:§8x(?<amount>[\\d,]+))?",
-    )
-
-    /**
-     * REGEX-TEST: §7Cost
-     */
-    val costLinePattern by patternGroup.pattern(
-        "item.cost.line",
-        "(?:§5§o)?§7Cost.*",
     )
 
     @Suppress("MaxLineLength")
@@ -191,6 +187,8 @@ object UtilsPatterns {
         "inventory.skyblockmenu",
         "SkyBlock Menu",
     )
+
+    val skyblockMenuInventory = InventoryDetector { skyblockMenuGuiPattern }
 
     /**
      * REGEX-TEST: §7Source: §fVerdant Shard §8(C11)

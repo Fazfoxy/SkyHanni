@@ -46,7 +46,7 @@ object HuntingProfitTracker {
 
     data class Data(
         @Expose var totalMobsCaught: Long = 0,
-        @Expose var totalShardsGained: Long = 0
+        @Expose var totalShardsGained: Long = 0,
     ) : ItemTrackerData<SessionUptime.Normal>(SessionUptime.Normal::class) {
 
         override fun getDescription(item: TrackedItem): List<String> {
@@ -114,7 +114,7 @@ object HuntingProfitTracker {
         RenderDisplayHelper(
             outsideInventory = true,
             inOwnInventory = true,
-            condition = { isEnabled() && config.enabled && (isRecentPickup || heldItemEnabled()) },
+            condition = { isEnabled() && config.enabled && (config.alwaysShow || isRecentPickup || heldItemEnabled()) },
             onRender = {
                 tracker.renderDisplay(config.position)
             },
