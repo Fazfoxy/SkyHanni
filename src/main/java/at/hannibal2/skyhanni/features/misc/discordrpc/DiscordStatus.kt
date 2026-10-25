@@ -198,10 +198,11 @@ enum class DiscordStatus(private val displayMessageSupplier: DiscordStatus.() ->
         {
             val article = if (SlayerApi.activeType == SlayerType.INFERNO) "an" else "a"
             when (SlayerApi.state) {
-                SlayerApi.ActiveQuestState.GRINDING -> "Spawning $article ${SlayerApi.activeType?.displayName}"
-                SlayerApi.ActiveQuestState.BOSS_FIGHT -> "Slaying $article ${SlayerApi.activeType?.displayName}"
-                SlayerApi.ActiveQuestState.SLAIN -> "Finished slaying $article ${SlayerApi.activeType?.displayName}"
-                SlayerApi.ActiveQuestState.FAILED -> "Lost to $article ${SlayerApi.activeType?.displayName}"
+                GRINDING -> "Spawning $article ${SlayerApi.activeType?.displayName}"
+                BOSS_FIGHT -> "Slaying $article ${SlayerApi.activeType?.displayName}"
+                SLAIN -> "Finished slaying $article ${SlayerApi.activeType?.displayName}"
+                FAILED -> "Lost to $article ${SlayerApi.activeType?.displayName}"
+                COCOONED -> "Waiting for $article ${SlayerApi.activeType?.displayName} cocoon to hatch"
                 else -> AutoStatus.SLAYER.placeholderText
             }
         },
@@ -315,7 +316,7 @@ enum class DiscordStatus(private val displayMessageSupplier: DiscordStatus.() ->
                 "AFK for $format"
             } else AutoStatus.AFK.placeholderText
         },
-    )
+    ),
     ;
 
     fun getDisplayString(): String = displayMessageSupplier().orEmpty()
