@@ -35,20 +35,28 @@ import net.minecraft.world.item.Items
 
 @SkyHanniModule
 object StewHelper {
+    private val patternGroup = RepoPattern.group("event.year-of-the-witch")
 
     /**
      * REGEX-TEST: Warmed Flakes x64
      */
-    private val stewItemNamePattern by RepoPattern.pattern(
-        "event.year-of-the-witch.stew-item",
+    private val stewItemNamePattern by patternGroup.pattern(
+        "stew-item",
         "(?<item>.*) x(?<amount>\\d+)",
     )
 
+    /**
+     * REGEX-TEST: Witches Stew
+     */
+    private val stewInventoryPattern by patternGroup.pattern(
+        "stew-inventory",
+        "Witches Stew",
+    )
+
     private val inventoryDetector = InventoryDetector(
-        checkInventoryName = { it == "Witches Stew" },
         // TODO use InventoryUpdatedEvent, either in this file, or in InventoryDetector
         onOpenInventory = { DelayedRun.runNextTick { checkSlots() } },
-    )
+    ) { stewInventoryPattern }
 
     private var display = emptyList<Renderable>()
     private val textInput = SearchTextInput()
@@ -140,6 +148,6 @@ object StewHelper {
     private enum class StewStatus(val color: LorenzColor?) {
         MISSING_INGREDIENTS(null),
         HAS_ENOUGH(LorenzColor.YELLOW),
-        HAS_EATEN(LorenzColor.GREEN)
+        HAS_EATEN(LorenzColor.GREEN),
     }
 }

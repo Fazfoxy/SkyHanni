@@ -84,7 +84,7 @@ object SkyBlockItemModifierUtils {
 
     fun SafeItemStack.getDungeonTier() = getAttributeInt("item_tier")
 
-    fun SafeItemStack.getStatBoostPercentage() = getAttributeInt("baseStatBoostPercentage")
+    fun SafeItemStack.getDungeonItemQuality() = getAttributeInt("baseStatBoostPercentage")
 
     private fun SafeItemStack.isDungeonItem() = getLore().any { it.contains("DUNGEON ") }
 

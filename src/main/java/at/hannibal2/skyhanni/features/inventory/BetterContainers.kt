@@ -67,7 +67,7 @@ object BetterContainers {
         "disallowed",
         "(?i)navigate the maze.*",
     )
-    val disallowedInventory = InventoryDetector(disallowedInventoryPattern)
+    val disallowedInventory = InventoryDetector { disallowedInventoryPattern }
 
     val isRendering: Boolean get() = loaded && gpuTex != null
     val isOverriding: Boolean get() = chestOpen && isRendering && !disallowedInventory.isInside()
@@ -98,8 +98,8 @@ object BetterContainers {
     }
 
     @JvmStatic
-    fun slotCanBeHighlighted(slot: Slot): Boolean {
-        return if (!isOverriding) slot.isHighlightable
+    fun slotCanBeHighlighted(slot: Slot, original: Boolean): Boolean {
+        return if (!isOverriding) original
         else !isBlankStack(slot.item)
     }
 
@@ -181,7 +181,7 @@ object BetterContainers {
     }
 
     private fun getBaseTextColor(
-        backgroundStyle: LegacyBetterContainers.BackgroundStyle
+        backgroundStyle: LegacyBetterContainers.BackgroundStyle,
     ) = readJsonResource(backgroundStyle.configId)?.use { reader ->
         val newJson = ConfigManager.gson.fromJson(reader, JsonObject::class.java)
         @Suppress("AvoidBritishSpelling")
@@ -279,7 +279,7 @@ object BetterContainers {
         handlerInventory: Container,
         horizontalTexMult: Int,
         verticalTexMult: Int,
-        bufferedImageNew: BufferedImage
+        bufferedImageNew: BufferedImage,
     ) {
         val size = handlerInventory.containerSize
         val isSlot = Array(9) { BooleanArray(size / 9) }
