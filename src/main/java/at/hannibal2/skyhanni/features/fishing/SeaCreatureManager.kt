@@ -8,10 +8,11 @@ import at.hannibal2.skyhanni.events.chat.SkyHanniChatEvent
 import at.hannibal2.skyhanni.events.fishing.SeaCreatureFishEvent
 import at.hannibal2.skyhanni.features.fishing.seaCreatureXMLGui.SpecificSeaCreatures
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
+import at.hannibal2.skyhanni.test.command.ErrorManager
 import at.hannibal2.skyhanni.utils.RegexUtils.matches
 import at.hannibal2.skyhanni.utils.SimpleTimeMark
 import at.hannibal2.skyhanni.utils.StringUtils
-import at.hannibal2.skyhanni.utils.chat.TextHelper.asComponent
+import at.hannibal2.skyhanni.utils.chat.TextHelper
 import at.hannibal2.skyhanni.utils.compat.appendWithColor
 import at.hannibal2.skyhanni.utils.compat.componentBuilder
 import at.hannibal2.skyhanni.utils.repopatterns.RepoPattern
@@ -78,32 +79,29 @@ object SeaCreatureManager {
 
         val isDoubleHook = wasDoubleHookRecently()
 
-        val original = event.chatComponent.copy()
-        var edited = original
+        val edited = componentBuilder {
+                val doubleHookComponent = TextHelper.text("DOUBLE HOOK!").withStyle(ChatFormatting.YELLOW, ChatFormatting.BOLD)
 
-        if (config.shortenFishingMessage) {
-            val name = seaCreature.componentDisplayName
-            val aOrAn = StringUtils.optionalAn(it.name)
-            edited = componentBuilder {
+                if (isDoubleHook && config.compactDoubleHook && config.compactDoubleHookPosition == CompactDoubleHookPosition.LEFT) {
+                    append(doubleHookComponent)
+                    appendWithColor(" ", ChatFormatting.RESET)
+                }
+                if (config.shortenFishingMessage) {
+                    val name = seaCreature.componentDisplayName
+                    val aOrAn = StringUtils.optionalAn(seaCreature.name)
                     appendWithColor("You caught $aOrAn", ChatFormatting.BLUE)
                     append(name)
                     appendWithColor("!", ChatFormatting.BLUE)
-                } as MutableComponent
-        }
-
-        if (config.compactDoubleHook && isDoubleHook) {
-            val doubleHookComponent = "DOUBLE HOOK!".asComponent().withStyle(ChatFormatting.YELLOW, ChatFormatting.BOLD)
-                edited = when (config.compactDoubleHookPosition) {
-                    CompactDoubleHookPosition.LEFT ->
-                        doubleHookComponent.append(" ").withStyle(ChatFormatting.RESET).append(edited)
-
-                    CompactDoubleHookPosition.RIGHT ->
-                        edited.append(doubleHookComponent)
-            }
-        }
+                }
+                if (config.compactDoubleHook && isDoubleHook) {
+                    if (config.compactDoubleHookPosition == CompactDoubleHookPosition.RIGHT) {
+                        append(doubleHookComponent)
+                    }
+                }
+            } as MutableComponent
 
         lastDoubleHookTime = SimpleTimeMark.farPast()
-        if (original == edited) return
+        if (!anyMessageEditorEnabled()) return
         event.replaceComponent(edited, "sea_creature")
     }
 
@@ -128,8 +126,11 @@ object SeaCreatureManager {
                 val rare = seaCreature.rare
                 val lootshareSphere = seaCreature.lootshareSphereOverride
                 val oldNames = seaCreature.oldNames.orEmpty()
+                val componentColor = ChatFormatting.getByCode(chatColor[1]) ?: ErrorManager.skyHanniError(
+                    "Failed to convert from color code to ChatFormatting", "color" to chatColor[1],
+                )
 
-                val creature = SeaCreature(name, fishingExperience, chatColor, rare, rarity, lootshareSphere, oldNames)
+                val creature = SeaCreature(name, fishingExperience, chatColor, rare, rarity, lootshareSphere, oldNames, componentColor)
                 seaCreatureMap[chatMessage] = creature
                 for (alternateMessage in seaCreature.alternateMessages.orEmpty()) {
                     seaCreatureMap[alternateMessage] = creature
@@ -157,4 +158,7 @@ object SeaCreatureManager {
 
         override fun toString() = displayName
     }
+
+    private fun anyMessageEditorEnabled(): Boolean = config.compactDoubleHook || config.shortenFishingMessage
+
 }
