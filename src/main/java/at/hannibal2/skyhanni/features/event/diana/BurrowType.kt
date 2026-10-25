@@ -10,19 +10,19 @@ import net.minecraft.network.chat.Component
 
 private val config get() = SkyHanniMod.feature.event.diana.burrowCustomization
 
-enum class BurrowType(val text: String, var color: () -> ChromaColour) {
+enum class BurrowType(val text: String, val color: () -> ChromaColour) {
 
     START(
         "Start",
-        { config::startBurrowColor.get() },
+        { config.startBurrowColor },
     ),
     MOB(
         "Mob",
-        { config::mobBurrowColor.get() },
+        { config.mobBurrowColor },
     ),
     TREASURE(
         "Treasure",
-        { config::treasureBurrowColor.get() }
+        { config.treasureBurrowColor }
     ),
     UNKNOWN(
         "Unknown?!",
