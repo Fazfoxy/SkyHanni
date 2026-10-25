@@ -80,25 +80,25 @@ object SeaCreatureManager {
         val isDoubleHook = wasDoubleHookRecently()
 
         val edited = componentBuilder {
-                val doubleHookComponent = TextHelper.text("DOUBLE HOOK!").withStyle(ChatFormatting.YELLOW, ChatFormatting.BOLD)
+            val doubleHookComponent = TextHelper.text("DOUBLE HOOK!").withStyle(ChatFormatting.YELLOW, ChatFormatting.BOLD)
 
-                if (isDoubleHook && config.compactDoubleHook && config.compactDoubleHookPosition == CompactDoubleHookPosition.LEFT) {
+            if (isDoubleHook && config.compactDoubleHook && config.compactDoubleHookPosition == CompactDoubleHookPosition.LEFT) {
+                append(doubleHookComponent)
+                appendWithColor(" ", ChatFormatting.RESET)
+            }
+            if (config.shortenFishingMessage) {
+                val name = seaCreature.componentDisplayName
+                val aOrAn = StringUtils.optionalAn(seaCreature.name)
+                appendWithColor("You caught $aOrAn", ChatFormatting.BLUE)
+                append(name)
+                appendWithColor("!", ChatFormatting.BLUE)
+            }
+            if (config.compactDoubleHook && isDoubleHook) {
+                if (config.compactDoubleHookPosition == CompactDoubleHookPosition.RIGHT) {
                     append(doubleHookComponent)
-                    appendWithColor(" ", ChatFormatting.RESET)
                 }
-                if (config.shortenFishingMessage) {
-                    val name = seaCreature.componentDisplayName
-                    val aOrAn = StringUtils.optionalAn(seaCreature.name)
-                    appendWithColor("You caught $aOrAn", ChatFormatting.BLUE)
-                    append(name)
-                    appendWithColor("!", ChatFormatting.BLUE)
-                }
-                if (config.compactDoubleHook && isDoubleHook) {
-                    if (config.compactDoubleHookPosition == CompactDoubleHookPosition.RIGHT) {
-                        append(doubleHookComponent)
-                    }
-                }
-            } as MutableComponent
+            }
+        } as MutableComponent
 
         lastDoubleHookTime = SimpleTimeMark.farPast()
         if (!anyMessageEditorEnabled()) return
