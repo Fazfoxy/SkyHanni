@@ -75,7 +75,7 @@ object StatOverlay {
         val displayStats = buildList {
             if (event.oldBoolean("combat.ferocityDisplay.enabled")) add(SkyblockStatUI.FEROCITY)
             if (event.oldBoolean("event.spook.fearStatDisplay")) add(SkyblockStatUI.FEAR)
-            event.transform(138, "garden.pests.pestChanceDisplay") {
+            event.transform(149, "garden.pests.pestChanceDisplay") {
                 val oldMode = it.asJsonObject["pestChanceDisplay"].asString
                 when (oldMode) {
                     "COMPACT" -> {
@@ -88,10 +88,10 @@ object StatOverlay {
                 it
             }
         }
-        event.add(138, "gui.statDisplayer.displayStats") {
+        event.add(149, "gui.statDisplayer.displayStats") {
             ConfigManager.gson.toJsonTree(displayStats)
         }
-        event.add(138, "gui.statDisplayer.displayPositions") {
+        event.add(149, "gui.statDisplayer.displayPositions") {
             val positions = PositionList(SkyblockStatUI.entries.size)
             event.oldPosition("combat.ferocityDisplay.position")?.let {
                 positions[SkyblockStatUI.FEROCITY.ordinal] = it
@@ -105,10 +105,10 @@ object StatOverlay {
             ConfigManager.gson.toJsonTree(positions)
         }
 
-        event.remove(138, "combat.ferocityDisplay.enabled")
-        event.remove(138, "combat.ferocityDisplay.position")
-        event.remove(138, "event.spook.fearStatDisplay")
-        event.remove(138, "event.spook.positionFear")
+        event.remove(149, "combat.ferocityDisplay.enabled")
+        event.remove(149, "combat.ferocityDisplay.position")
+        event.remove(149, "event.spook.fearStatDisplay")
+        event.remove(149, "event.spook.positionFear")
     }
 
 }
