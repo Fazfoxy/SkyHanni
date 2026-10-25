@@ -81,10 +81,11 @@ object PestApi {
 
     /**
      * WRAPPED-REGEX-TEST: " §7 §aThe Garden §4§l§7 x1"
+     * WRAPPED-REGEX-TEST: " §7 §cThe Garden §4§l§7 x8"
      */
     private val pestsInScoreboardPattern by patternGroup.pattern(
         "scoreboard.pests",
-        " §7. §[ac]The Garden §4§l\uE018§7 x(?<pests>.*)",
+        " §7. §[ac]The Garden §4§l[\uE07F\uE018]§7 x(?<pests>.*)",
     )
 
     /**
@@ -101,7 +102,7 @@ object PestApi {
      */
     private val pestsInPlotScoreboardPattern by patternGroup.pattern(
         "scoreboard.plot.pests",
-        "\\s*(?:§.)*Plot (?:§.)*- (?:§.)*(?<plot>.+) (?:§.)*(?:§.)* x(?<pests>\\d+)",
+        "\\s*(?:§.)*Plot (?:§.)*- (?:§.)*(?<plot>.+) (?:§.)*[\uE07F\uE018](?:§.)* x(?<pests>\\d+)",
     )
 
     /**
@@ -117,7 +118,7 @@ object PestApi {
      */
     private val pestInventoryPattern by patternGroup.pattern(
         "inventory",
-        "§4§l §cThis plot has §.(?<amount>\\d+) §2 Pests?§c!",
+        "§4§l[\uE07F\uE018] §cThis plot has §.(?<amount>\\d+) §2[\uE07F\uE018] Pests?§c!",
     )
 
     /**
@@ -363,7 +364,11 @@ object PestApi {
 
     fun getPlotsWithoutPests() = GardenPlotApi.plots.filter { it.pests == 0 || !it.isPestCountInaccurate }
 
-    fun getNearestInfestedPlot() = getInfestedPlots().minByOrNull { it.middle.distanceSqToPlayer() }
+    fun getNearestInfestedPlot(ignoreSinglePestPlots: Boolean = false) = getInfestedPlots()
+        .filterNot {
+            ignoreSinglePestPlots && !it.isPestCountInaccurate && it.pests == 1
+        }
+        .minByOrNull { it.middle.distanceSqToPlayer() }
 
     fun isNearPestTrap() = EntityUtils.getEntitiesNearby<ArmorStand>(10.0).any {
         pestTrapPattern.matches(it.displayName.formattedTextCompat())
