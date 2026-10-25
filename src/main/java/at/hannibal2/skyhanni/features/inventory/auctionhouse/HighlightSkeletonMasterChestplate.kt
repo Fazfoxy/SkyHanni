@@ -22,7 +22,7 @@ object HighlightSkeletonMasterChestplate {
     private val SKELETON_MASTER_CHESTPLATE = "SKELETON_MASTER_CHESTPLATE".toInternalName()
 
     @HandleEvent(onlyOnSkyblock = true)
-    fun onBackgroundDrawn(event: GuiContainerEvent.BackgroundDrawnEvent) {
+    private fun onBackgroundDrawn(event: GuiContainerEvent.BackgroundDrawnEvent) {
         if (!auctionMenu.isInside()) return
         if (!isEnabled()) return
         for (slot in event.gui.slots()) {
