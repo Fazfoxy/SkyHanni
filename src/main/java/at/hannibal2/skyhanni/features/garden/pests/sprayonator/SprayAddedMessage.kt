@@ -58,6 +58,6 @@ object SprayAddedMessage {
         sprayExpiryTime: SimpleTimeMark, expectedExpireTime: SimpleTimeMark, currentSpray: SprayType, newSpray: SprayType,
     ): Boolean {
         return (sprayExpiryTime <= expectedExpireTime - 10.minutes || currentSpray != newSpray) &&
-            (config.newSprayNotification && sprayExpiryTime >= SimpleTimeMark.now() + 1.minutes)
+            (config.newSprayNotification && sprayExpiryTime.timeUntil() > 1.minutes)
     }
 }

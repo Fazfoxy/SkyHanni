@@ -103,6 +103,5 @@ object DisplayActiveSpray {
         }
     }
 
-
     private fun isDisplayEnabled() = config.displayEnabled
 }
