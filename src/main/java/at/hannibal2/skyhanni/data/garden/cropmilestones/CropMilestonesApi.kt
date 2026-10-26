@@ -394,18 +394,18 @@ object CropMilestonesApi {
             description = "sends an overflow crop milestone level-up message"
             category = CommandCategory.DEVELOPER_TEST
             arg("crop", EnumArgumentType.custom<CropType>({ it.cropName })) { crop ->
-            arg("previouslevel", BrigadierArguments.integer()) { previousLevel ->
-                arg("newlevel", BrigadierArguments.integer()) { newLevel ->
-                    callback {
-                        onOverflowLevelUp(
-                            getArg(crop),
-                            getArg(previousLevel),
-                            getArg(newLevel)
-                        )
+                arg("previouslevel", BrigadierArguments.integer()) { previousLevel ->
+                    arg("newlevel", BrigadierArguments.integer()) { newLevel ->
+                        callback {
+                            onOverflowLevelUp(
+                                getArg(crop),
+                                getArg(previousLevel),
+                                getArg(newLevel),
+                            )
+                        }
                     }
-                }
 
-            }
+                }
 
             }
             callback {

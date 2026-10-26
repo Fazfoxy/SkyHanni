@@ -260,13 +260,15 @@ object SkillProgress {
         event.registerBrigadier("shfakeoverflowskillmessage") {
             description = "sends an overflow skill levelup message"
             category = CommandCategory.DEVELOPER_TEST
-            arg("skill", EnumArgumentType.custom<SkillType>({it.displayName})) { skill->
+            arg("skill", EnumArgumentType.custom<SkillType>({ it.displayName })) { skill ->
                 arg("previouslevel", BrigadierArguments.integer()) { previousLevel ->
                     arg("newlevel", BrigadierArguments.integer()) { newLevel ->
-                        callback { sendOverflowLevelup(
-                            getArg(skill),
-                            getArg(previousLevel),
-                            getArg(newLevel))
+                        callback {
+                            sendOverflowLevelup(
+                                getArg(skill),
+                                getArg(previousLevel),
+                                getArg(newLevel),
+                            )
                         }
                     }
                 }
