@@ -4,7 +4,6 @@ import at.hannibal2.skyhanni.utils.LorenzRarity
 import at.hannibal2.skyhanni.utils.compat.appendWithColor
 import at.hannibal2.skyhanni.utils.compat.bold
 import at.hannibal2.skyhanni.utils.compat.componentBuilder
-import net.minecraft.ChatFormatting
 
 data class SeaCreature(
     val name: String,
@@ -14,13 +13,13 @@ data class SeaCreature(
     val rarity: LorenzRarity,
     val lootshareSphereOverride: Boolean?,
     val oldNames: List<String> = emptyList(),
-    val componentColor: ChatFormatting,
+    val rgbColor: Int,
 ) {
 
     val displayName = chatColor + legacyRare() + name
 
     val componentDisplayName = componentBuilder {
-        appendWithColor(string = name, color = componentColor) {
+        appendWithColor(string = name, color = rgbColor) {
             bold = rare
         }
     }

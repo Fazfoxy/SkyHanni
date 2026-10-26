@@ -9,6 +9,8 @@ import at.hannibal2.skyhanni.events.fishing.SeaCreatureFishEvent
 import at.hannibal2.skyhanni.features.fishing.seaCreatureXMLGui.SpecificSeaCreatures
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.test.command.ErrorManager
+import at.hannibal2.skyhanni.utils.ColorUtils.toRGB
+import at.hannibal2.skyhanni.utils.LorenzColor.Companion.toLorenzColor
 import at.hannibal2.skyhanni.utils.RegexUtils.matches
 import at.hannibal2.skyhanni.utils.SimpleTimeMark
 import at.hannibal2.skyhanni.utils.StringUtils
@@ -126,8 +128,8 @@ object SeaCreatureManager {
                 val rare = seaCreature.rare
                 val lootshareSphere = seaCreature.lootshareSphereOverride
                 val oldNames = seaCreature.oldNames.orEmpty()
-                val componentColor = ChatFormatting.getByCode(chatColor[1]) ?: ErrorManager.skyHanniError(
-                    "Failed to convert from color code to ChatFormatting", "color" to chatColor[1],
+                val componentColor = seaCreature.rgbColor ?: ChatFormatting.getByCode(chatColor[1])?.toRGB() ?: ErrorManager.skyHanniError(
+                    "Failed to convert from legacy code to ChatFormatting", "color" to chatColor[1],
                 )
 
                 val creature = SeaCreature(name, fishingExperience, chatColor, rare, rarity, lootshareSphere, oldNames, componentColor)
