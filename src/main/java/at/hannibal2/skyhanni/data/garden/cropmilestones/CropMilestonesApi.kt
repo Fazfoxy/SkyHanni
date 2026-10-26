@@ -4,6 +4,8 @@ import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.config.ConfigUpdaterMigrator
 import at.hannibal2.skyhanni.config.commands.CommandCategory
 import at.hannibal2.skyhanni.config.commands.CommandRegistrationEvent
+import at.hannibal2.skyhanni.config.commands.brigadier.BrigadierArguments
+import at.hannibal2.skyhanni.config.commands.brigadier.arguments.EnumArgumentType
 import at.hannibal2.skyhanni.data.achievements.Achievement
 import at.hannibal2.skyhanni.data.garden.CropCollectionApi.addsToMilestone
 import at.hannibal2.skyhanni.data.garden.cropmilestones.CustomGoals.getCustomGoal
@@ -386,6 +388,28 @@ object CropMilestonesApi {
             callback {
                 resetMilestones()
                 chat("§cReset Crop Milestones!")
+            }
+        }
+        event.registerBrigadier("shfakecropmilestoneoverflowmessage") {
+            description = "sends an overflow crop milestone level-up message"
+            category = CommandCategory.DEVELOPER_TEST
+            arg("crop", EnumArgumentType.custom<CropType>({ it.cropName })) { crop ->
+            arg("previouslevel", BrigadierArguments.integer()) { previousLevel ->
+                arg("newlevel", BrigadierArguments.integer()) { newLevel ->
+                    callback {
+                        onOverflowLevelUp(
+                            getArg(crop),
+                            getArg(previousLevel),
+                            getArg(newLevel)
+                        )
+                    }
+                }
+
+            }
+
+            }
+            callback {
+
             }
         }
     }
