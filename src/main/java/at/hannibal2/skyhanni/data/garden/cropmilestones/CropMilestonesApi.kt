@@ -408,9 +408,6 @@ object CropMilestonesApi {
                 }
 
             }
-            callback {
-
-            }
         }
     }
 

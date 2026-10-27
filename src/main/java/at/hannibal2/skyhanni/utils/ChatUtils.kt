@@ -468,12 +468,12 @@ object ChatUtils {
         prefix: Boolean = true,
         prefixColor: String? = null,
     ) {
-        messages.forEach { message ->
+        messages.forEachIndexed { index, message ->
             chat(
                 message = message,
-                prefix = prefix,
+                prefix = prefix && index == 0,
                 prefixColor = prefixColor,
-                // TODO: add support
+                // TODO: add support for replaceSameMessage and onlySendOnce and messageId
                 replaceSameMessage = false,
                 onlySendOnce = false,
                 messageId = null,
