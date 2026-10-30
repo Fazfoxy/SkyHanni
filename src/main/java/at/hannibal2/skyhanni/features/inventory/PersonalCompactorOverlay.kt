@@ -195,7 +195,8 @@ object PersonalCompactorOverlay {
         ;
 
         companion object {
-            fun getBySplitName(splitName: String): PersonalAccessoryType = PersonalAccessoryType.entries.first { it.name == splitName.uppercase() }
+            fun getBySplitName(splitName: String): PersonalAccessoryType =
+                PersonalAccessoryType.entries.first { it.name == splitName.uppercase() }
         }
     }
 
