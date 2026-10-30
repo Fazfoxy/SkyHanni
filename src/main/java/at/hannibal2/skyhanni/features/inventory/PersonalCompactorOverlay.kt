@@ -8,15 +8,14 @@ import at.hannibal2.skyhanni.events.InventoryUpdatedEvent
 import at.hannibal2.skyhanni.events.RenderItemTipEvent
 import at.hannibal2.skyhanni.events.RenderObject
 import at.hannibal2.skyhanni.events.minecraft.ToolTipTextEvent
+import at.hannibal2.skyhanni.features.inventory.PersonalCompactorOverlay.PersonalAccessoryType.Companion.getBySplitName
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
-import at.hannibal2.skyhanni.utils.ChatUtils
 import at.hannibal2.skyhanni.utils.InventoryUtils.filterInnerSlots
-import at.hannibal2.skyhanni.utils.ItemUtils.cleanName
 import at.hannibal2.skyhanni.utils.ItemUtils.getCleanLore
 import at.hannibal2.skyhanni.utils.ItemUtils.getInternalName
 import at.hannibal2.skyhanni.utils.ItemUtils.getInternalNameOrNull
-import at.hannibal2.skyhanni.utils.ItemUtils.repoItemName
 import at.hannibal2.skyhanni.utils.KeyboardManager.isKeyHeld
+import at.hannibal2.skyhanni.utils.NeuInternalName
 import at.hannibal2.skyhanni.utils.NeuItems.getInternalNameFromHypixelIdOrNull
 import at.hannibal2.skyhanni.utils.NeuItems.getItemStack
 import at.hannibal2.skyhanni.utils.NumberUtil.formatInt
@@ -92,18 +91,11 @@ object PersonalCompactorOverlay {
         val itemStack = event.itemStack
         val internalName = itemStack.getInternalName()
         val name = event.toolTip.firstOrNull() ?: return
-        val (type, tier, skill) = internalNamePattern.matchMatcher(internalName.asString()) {
-            Triple(
-                group("type"),
-                group("tier").formatInt(),
-                CompactorType.getBySkillNameOrNull(groupOrNull("skill")),
-            )
-        } ?: return
+        val (type, tier, skill) = getCompactorInfoByInternalName(internalName) ?: return
 
         val prefix = when (type) {
-            "COMPACTOR" -> "personal_compact_"
-            "DELETOR" -> "personal_deletor_"
-            else -> return
+            COMPACTOR -> "personal_compact_"
+            DELETOR -> "personal_deletor_"
         }
 
         val uuid = itemStack.getItemUuid() ?: return
@@ -111,15 +103,15 @@ object PersonalCompactorOverlay {
 
         val slots = slotsMap[tier] ?: return
         // TODO once https://hypixel.net/threads/october-29-accessory-bag-revamp-economy-changes.6165308/ is on main change to just check is deletor.
-        val itemList = if (skill != null) {
-            storage?.get(skill)?.map {
-                ChatUtils.debug("${it.key.repoItemName} has been run through map for tooltip render")
+        var itemList = mutableListOf<SafeItemStack?>()
+        skill?.let {
+            itemList = storage?.get(skill)?.map {
                 if (it.value) it.key.getItemStack() else null
-            }?.filterNotNull().orEmpty()
-        } else {
-            (0 until slots).map { slot ->
+            }?.filterNotNull().orEmpty().toMutableList()
+        } ?: {
+            for (slot in 0 until slots) {
                 val skyblockId = itemStack.getAttributeString(prefix + slot)
-                skyblockId?.let { getInternalNameFromHypixelIdOrNull(it) }?.getItemStack()
+                itemList.add(skyblockId?.let { getInternalNameFromHypixelIdOrNull(it) }?.getItemStack())
             }
         }
 
@@ -148,13 +140,9 @@ object PersonalCompactorOverlay {
             val compactorType = CompactorType.getBySkillName(type)
             val innerItems = event.inventoryItems.filterInnerSlots()
             innerItems.forEach { (_, stack) ->
-                if (stack.getCleanLore().any { itemCompactionEnabledPattern.matches(it) }) {
-                    storage?.getOrPut(compactorType) { mutableMapOf() }[stack.getInternalName()] = true
-                    ChatUtils.debug("${stack.cleanName} has been added to ${compactorType.name}'s Compactor List")
-                } else {
-                    storage?.getOrPut(compactorType) { mutableMapOf() }[stack.getInternalName()] = false
-                    ChatUtils.debug("${stack.cleanName} has been removed from ${compactorType.name}'s Compactor List")
-                }
+                storage?.getOrPut(compactorType) {
+                    mutableMapOf()
+                }[stack.getInternalName()] = stack.getCleanLore().any { itemCompactionEnabledPattern.matches(it) }
             }
         }
     }
@@ -164,11 +152,8 @@ object PersonalCompactorOverlay {
         if (!config.showToggle) return
         val itemStack = event.stack
         val internalName = itemStack.getInternalNameOrNull() ?: return
-        if (!internalNamePattern.matches(internalName.asString())) return
+        val skill = getCompactorInfoByInternalName(internalName)?.third
 
-        val skill = internalNamePattern.matchMatcher(internalName.asString()) {
-            groupOrNull("skill")
-        }
         if (skill != null) return
         // TODO once https://hypixel.net/threads/october-29-accessory-bag-revamp-economy-changes.6165308/ is on main change to just check is deletor?
 
@@ -183,14 +168,35 @@ object PersonalCompactorOverlay {
     }
 
     private fun shouldShow() = when (config.visibilityMode) {
-        PersonalCompactorConfig.VisibilityMode.ALWAYS -> true
-        PersonalCompactorConfig.VisibilityMode.KEYBIND -> config.keybind.isKeyHeld()
-        PersonalCompactorConfig.VisibilityMode.EXCEPT_KEYBIND -> !config.keybind.isKeyHeld()
+        ALWAYS -> true
+        KEYBIND -> config.keybind.isKeyHeld()
+        EXCEPT_KEYBIND -> !config.keybind.isKeyHeld()
     }
 
     private fun getPersonalCompactorEnabled(itemStack: SafeItemStack): Boolean? {
         val uuid = itemStack.getItemUuid() ?: return null
         return compactorEnabledMap.getOrPut(uuid) { itemStack.getPersonalCompactorActive() }
+    }
+
+    private fun getCompactorInfoByInternalName(internalName: NeuInternalName): Triple<PersonalAccessoryType, Int, CompactorType?>? {
+        internalNamePattern.matchMatcher(internalName.asString()) {
+            return Triple(
+                getBySplitName(group("type")),
+                group("tier").formatInt(),
+                CompactorType.getBySkillNameOrNull(groupOrNull("skill")),
+            )
+        }
+        return null
+    }
+
+    enum class PersonalAccessoryType {
+        COMPACTOR,
+        DELETOR,
+        ;
+
+        companion object {
+            fun getBySplitName(splitName: String): PersonalAccessoryType = PersonalAccessoryType.entries.first { it.name == splitName.uppercase() }
+        }
     }
 
     enum class CompactorType {
