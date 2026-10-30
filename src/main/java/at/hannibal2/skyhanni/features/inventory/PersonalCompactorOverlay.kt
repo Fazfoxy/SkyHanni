@@ -115,7 +115,7 @@ object PersonalCompactorOverlay {
             storage?.get(skill)?.map {
                 ChatUtils.debug("${it.key.repoItemName} has been run through map for tooltip render")
                 if (it.value) it.key.getItemStack() else null
-            }?.filterNotNull() ?: emptyList()
+            }?.filterNotNull().orEmpty()
         } else {
             (0 until slots).map { slot ->
                 val skyblockId = itemStack.getAttributeString(prefix + slot)
@@ -193,13 +193,13 @@ object PersonalCompactorOverlay {
         return compactorEnabledMap.getOrPut(uuid) { itemStack.getPersonalCompactorActive() }
     }
 
-    enum class CompactorType(val skillName: String) {
-        COMBAT("Combat"),
-        FARMING("Farming"),
-        FISHING("Fishing"),
-        FORAGING("Foraging"),
-        HUSBANDRY("Husbandry"),
-        MINING("Mining"),
+    enum class CompactorType {
+        COMBAT,
+        FARMING,
+        FISHING,
+        FORAGING,
+        HUSBANDRY,
+        MINING,
         ;
 
         companion object {
@@ -212,7 +212,6 @@ object PersonalCompactorOverlay {
                 return getBySkillName(skillName)
             }
         }
-
     }
 
     private fun isEnabled() = SkyBlockUtils.inSkyBlock && config.enabled
