@@ -2,7 +2,6 @@ package at.hannibal2.skyhanni.features.inventory
 
 import at.hannibal2.skyhanni.SkyHanniMod
 import at.hannibal2.skyhanni.api.event.HandleEvent
-import at.hannibal2.skyhanni.config.features.inventory.PersonalCompactorConfig
 import at.hannibal2.skyhanni.data.ProfileStorageData
 import at.hannibal2.skyhanni.events.InventoryUpdatedEvent
 import at.hannibal2.skyhanni.events.RenderItemTipEvent
@@ -105,8 +104,8 @@ object PersonalCompactorOverlay {
         // TODO once https://hypixel.net/threads/october-29-accessory-bag-revamp-economy-changes.6165308/ is on main change to just check is deletor.
         var itemList = mutableListOf<SafeItemStack?>()
         skill?.let {
-            itemList = storage?.get(skill)?.map {
-                if (it.value) it.key.getItemStack() else null
+            itemList = storage?.get(skill)?.map { compactingItem ->
+                if (compactingItem.value) compactingItem.key.getItemStack() else null
             }?.filterNotNull().orEmpty().toMutableList()
         } ?: {
             for (slot in 0 until slots) {
